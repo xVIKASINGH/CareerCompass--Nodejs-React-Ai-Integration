@@ -3,7 +3,7 @@ const User=require("../Models/UserSchema");
 const bcrypt = require('bcrypt');
 
 const dbconnect=require("../Helper/dbconnect");
-
+const jwt = require('jsonwebtoken');
 
 
 
@@ -24,8 +24,9 @@ exports.register=async(req,res)=>{
        const newUser=new User({
         username,email,password:hash
        })
+      
       await newUser.save();
-      return res.status(201).send("User registered successfully");
+      return res.status(201).send({ message: "User registered successfully", token });
     } catch (error) {
         console.error("Error registering user:", error);
         res.status(500).send("Server error",error);
@@ -48,7 +49,10 @@ exports.login =async (req, res) => {
          if (!isMatch) {
              return res.status(400).send("Invalid credentials");
          }
-         res.send("Login successful");
+          const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
+ expiresIn: '7d',
+ });
+          res.status(200).json({ token });
      } catch (error) {
         res.status(500).send("Server error");
      }
