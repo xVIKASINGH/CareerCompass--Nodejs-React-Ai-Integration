@@ -9,10 +9,11 @@ app.use(cors());
 app.use(express.json());
 
 const userRouter=require("./Routes/userrouter");
+const Feedbackroutes=require("./Routes/Feedbackroutes")
 
 
 app.use("/api",userRouter);
-
+app.use("/api",Feedbackroutes);
 
 app.get("/",(req,res)=>{
     res.send(`<h1>Welcome to the Backend Server</h1>`);

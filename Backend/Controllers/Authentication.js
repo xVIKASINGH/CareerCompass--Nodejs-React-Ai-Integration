@@ -7,9 +7,6 @@ const dbconnect=require("../Helper/dbconnect");
 
 
 
-
-
-
 exports.register=async(req,res)=>{
      console.log("api hitttt")
     const {username,email,password}=req.body;
