@@ -1,12 +1,12 @@
-const mongoose=require("mongoose");
+require('dotenv').config();
+const { Client } = require('pg');
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URI,
+  ssl: { rejectUnauthorized: false } 
+});
 
-const dbconnect=async()=>{
-    try {
-       await mongoose.connect(process.env.MONGO_URI);
-        console.log("connected to db successfully");
-    } catch (error) {
-        console.log("Failed to connect with DataBase",error);
-        process.exit(1); 
-    }
-}
-module.exports=dbconnect;
+
+
+
+module.exports={pool};
