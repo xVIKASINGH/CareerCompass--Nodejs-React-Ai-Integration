@@ -1,13 +1,13 @@
-const express=require("express");
+const Router = require("router");
+const { registeruser, login } = require("../Controllers/Authentication");
 
-const router=express.Router();
-const { register, login } = require('../Controllers/Authentication');
+const router = Router();
 
-router.get("/",(req,res)=>{
-    res.send("<h1>Welcome to the User Dashboard</h1>");
-})
+router.get("/", (req, res) => {
+    res.end("<h1>Welcome to the User Dashboard</h1>");
+});
 
-router.post("/register",register);
-router.post("/login",login);
+router.post("/register", registeruser); // ✅ function
+router.post("/login", login); // ✅ function
 
 module.exports = router;
