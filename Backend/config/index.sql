@@ -11,5 +11,6 @@ CREATE TABLE PUBLIC.FEEDBACK(
     user_id INTEGER REFERENCES PUBLIC.users(id),
     score INTEGER NOT NULL MIN CHECK (score >= 1 AND score <= 100),
     comment TEXT,
+    job_description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

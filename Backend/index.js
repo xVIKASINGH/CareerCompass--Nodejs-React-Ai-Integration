@@ -12,6 +12,7 @@ const userrouter = require("./Routes/userrouter");
 const submitfeedback=require("./Routes/Feedbackroutes");
 app.use("/api", userrouter);
 app.use("/api", submitfeedback);
+app.use("/api", require("./Routes/checkScore"));
 app.listen(8000, () => {
     console.log("Server is running on port 8000");
 });
