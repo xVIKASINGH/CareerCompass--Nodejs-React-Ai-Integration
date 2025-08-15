@@ -5,9 +5,14 @@ require("dotenv").config();
 const fs=require("fs")
 const app = express();
 
-app.use(cors());
+
 app.use(express.json());
 
+
+app.use(cors({
+    origin: "http://localhost:5173", 
+    credentials: true
+}));
 const userrouter = require("./Routes/userrouter");
 const submitfeedback=require("./Routes/Feedbackroutes");
 app.use("/api", userrouter);

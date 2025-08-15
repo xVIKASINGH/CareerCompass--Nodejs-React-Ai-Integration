@@ -26,14 +26,14 @@ exports.registeruser = async (req, res) => {
 
 exports.login = async (req, res) => {
     console.log("Login endpoint hit");
-    const {email,password}=req.body;
-    if(!email || !password){
+    const {username,password}=req.body;
+    if(!username || !password){
         return res.status(400).json({ error: 'Email and password are required' });
     }
     try {
        const user=await pool.query(
-        'SELECT * FROM users WHERE email = $1 AND password = $2',
-        [email, password]
+        'SELECT * FROM users WHERE username = $1 AND password = $2',
+        [username, password]
        )
        if(!user){
         return res.status(404).json({ error: 'User not found' });
