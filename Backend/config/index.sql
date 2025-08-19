@@ -9,6 +9,7 @@ CREATE TABLE PUBLIC.users(
 CREATE TABLE PUBLIC.FEEDBACK(
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES PUBLIC.users(id),
+    resume_url TEXT,
     score INTEGER NOT NULL MIN CHECK (score >= 1 AND score <= 100),
     comment TEXT,
     job_description TEXT,

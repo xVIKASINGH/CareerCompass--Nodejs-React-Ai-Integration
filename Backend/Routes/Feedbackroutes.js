@@ -1,8 +1,9 @@
 const express = require('express');
 
 const router=express.Router();
-const {submitfeedback}=require("../Controllers/Feedback");
-// const verifyToken=require("../Middlewares/VerifyToken")
-router.post("/feedback",submitfeedback);
+const {fetchfeedback}=require("../Controllers/Feedback");
+const verifyToken=require("../Middlewares/VerifyToken")
+router.get("/feedback",verifyToken,fetchfeedback);
+
 
 module.exports = router;

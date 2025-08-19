@@ -2,17 +2,26 @@
 
 const { pool } = require('../config/dbconnect');
 
-exports.submitfeedback = async (req, res) => {
-    console.log('Fetching feedback from database...');
-    const {user_id,comment,score}=req.body;
-  try {
-    const result = await pool.query('INSERT INTO feedback (user_id, comment, score) VALUES ($1, $2, $3) RETURNING *', [user_id, comment, score]);
-   
-       res.status(201).json({ success: true, data: result.rows[0] });
-  } catch (err) {
-    console.error('❌ Error fetching feedback:', err);
-    res.status(500).json({ success: false, message: 'Database error' });
-  }
+exports.fetchfeedback = async (req, res) => {
+  console.log("saving feeback routes hitssssss");
+    const {id}=req.userId;
+
+    try {
+        // Fetch previous feedbacks for the user
+        const result = await pool.query(
+            `SELECT * FROM feedback WHERE user_id = $1 ORDER BY created_at DESC`,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'No feedback found' });
+        }
+
+        return res.status(200).json({ success: true, feedbacks: result.rows });
+    } catch (error) {
+        console.log("Error while fetching user Previous feedbacks ",error);
+        return res.status(500).json({ success: false, message: 'Internal Server Error' })
+    }
 };
 
 
