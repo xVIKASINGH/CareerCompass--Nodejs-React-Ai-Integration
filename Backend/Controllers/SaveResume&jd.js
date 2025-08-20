@@ -18,9 +18,10 @@ const upload = multer({ dest: "uploads/" });
 
 router.post("/upload", upload.single("resume"), async (req, res) => {
     console.log("upload routes hittttttt")
+    console.log(req.file+" "+ req.body.jobDescription)
   try {
-    const { jd } = req.body; 
-
+    const { jobDescription } = req.body;
+     
     if (!req.file) {
       return res.status(400).json({ error: "No resume file uploaded" });
     }
@@ -33,19 +34,19 @@ router.post("/upload", upload.single("resume"), async (req, res) => {
     const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "auto"
     });
-
+    console.log("Cloudinary upload result:", result)
     // cleanup local file
     fs.unlinkSync(req.file.path);
 
     // 3. Call parser to get score & feedback
-    const response = await resumeParse(resumeText, jd); 
+    const response = await resumeParse(resumeText, jobDescription); 
 
 
 
     await pool.query(
       `INSERT INTO feedback (user_id, resume_url, score, comment, job_description)
        VALUES ($1, $2, $3, $4, $5)`,
-      [req.userId, result.secure_url, response,null, jd]
+      [req.userId, result.secure_url, response,null, jobDescription]
     );
 
     res.json({
