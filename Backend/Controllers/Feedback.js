@@ -4,8 +4,8 @@ const { pool } = require('../config/dbconnect');
 
 exports.fetchfeedback = async (req, res) => {
 
-    const {id}=req.userId;
-  
+    const id=req.userId;
+    console.log("User ID from request:", id)
   if(!id){
     return res.status(400).json({ success: false, message: 'User ID is required' });
   }
@@ -16,10 +16,10 @@ exports.fetchfeedback = async (req, res) => {
             [id]
         );
 
-        // if (result.rows.length === 0) {
-        //     return res.status(404).json({ success: false, message: 'No feedback found' });
-        // }
-
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'No feedback found' });
+        }
+            
         return res.status(200).json({ success: true, feedbacks: result.rows });
     } catch (error) {
         console.log("Error while fetching user Previous feedbacks ",error);
