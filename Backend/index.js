@@ -7,6 +7,7 @@ const fs=require("fs")
 const app = express();
 const resumeRoutes=require("./Controllers/SaveResume&jd")
 const verifytoken=require("./Middlewares/VerifyToken")
+const analysis=require("./Routes/AnalysisRoute");
 app.use(express.json());
 app.use(cookieParser());
 
@@ -18,7 +19,8 @@ const userrouter = require("./Routes/userrouter");
 const submitfeedback=require("./Routes/Feedbackroutes");
 app.use("/api", userrouter);
 app.use("/api", submitfeedback);
-app.use("/api",verifytoken, resumeRoutes);
+app.use("/api", resumeRoutes);
+app.use("/api",analysis);
 app.use("/api", require("./Routes/checkScore"));
 app.listen(8000, () => {
     console.log("Server is running on port 8000");

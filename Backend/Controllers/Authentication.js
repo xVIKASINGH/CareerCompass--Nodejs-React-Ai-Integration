@@ -13,12 +13,14 @@ exports.registeruser = async (req, res) => {
             'INSERT INTO users(username, email, password) VALUES ($1, $2, $3) RETURNING *',
             [username, email,hashedpassword]
         );
-        const token=await createSecretToken(user.id);
+        const token=await createSecretToken(user.rows[0].id);
         console.log("User registered successfully:", user.rows[0]);
-        res.cookie("token", token, {
-      withCredentials: true,
-      httpOnly: false,
-    });
+         res.cookie("token", token, {
+            httpOnly: true,
+            secure: false, // true if using HTTPS
+            sameSite: "lax",
+            maxAge: 1000*60*60*24
+        });
         res.status(201).json({ success: true, data: user.rows[0] });
     } catch (error) {
         console.error("Error in register endpoint:", error);

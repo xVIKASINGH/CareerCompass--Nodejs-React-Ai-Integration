@@ -16,6 +16,16 @@ export default function Dashboard() {
   const [localJobDescription, setLocalJobDescription] = useState("");
   const [showJDInput, setShowJDInput] = useState(false);
 
+
+
+  // anaylis section
+
+  const [loadingSection, setLoadingSection] = useState(null); // "score" | "skills" | "suggestions" | null
+  const [summary,setsummary]=useState(null);
+const [resumequality,setresumequality]=useState(null);
+const [skillsGap, setSkillsGap] = useState(null);
+const [suggestions, setSuggestions] = useState(null);
+const [strenthsuggestion,setstrenthsuggestion]=useState(null);
   // Drag & drop state
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef(null);
@@ -104,6 +114,48 @@ export default function Dashboard() {
       setTimeout(() => setUploadStatus("idle"), 3000);
     }
   };
+//  APi call for anaylis
+async function handleSectionFetch(section) {
+  try {
+    setLoadingSection(section);
+
+    let res = await fetch(`http://localhost:8000/api/analyze/${section}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        resume: resumeFile, 
+        jobDescription,
+      }),
+    });
+
+    const data = await res.json();
+
+    switch (section) {
+      case "summary":
+        setsummary(data.summary);
+        break;
+      case "resumequality":
+        setresumequality(data.resumequality);
+        break;
+      case "skillsGap":
+        setSkillsGap(data.skillsGap);
+        break;
+      case "suggestions":
+        setSuggestions(data.suggestions);
+        break;
+      case "strenthsuggestion":
+        setstrenthsuggestion(data.strenthsuggestion);
+        break;
+      default:
+        break;
+    }
+  } catch (err) {
+    console.error("Error fetching section:", err);
+  } finally {
+    setLoadingSection(null);
+  }
+}
+
 
   // Drag & drop handlers
   const handleDragOver = (e) => {
@@ -164,11 +216,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-red-100">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto ">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center ">
 
             
             {/* Status Messages */}
@@ -196,8 +248,8 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-2">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      <div className="max-w-7xl  px-6 py-2">
+        <div className="grid grid-cols-1 lg:grid-cols-[50%_50%_20%]  gap-8 h-full">
           
           {/* Left Panel */}
           <div className="space-y-0">
@@ -376,7 +428,7 @@ export default function Dashboard() {
 
                 {/* Job Description Section - Original */}
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
+                  <div className="px-6 py-0 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <div className="p-2 bg-purple-100 rounded-lg">
@@ -423,192 +475,164 @@ export default function Dashboard() {
           </div>
 
           {/* Right Panel - Analysis Section */}
-          <div className="space-y-6">
-            {score !== null && (
-              <>
-                {/* Match Score */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="px-6 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-emerald-100 rounded-lg">
-                        <Award className="w-5 h-5 text-emerald-600" />
-                      </div>
-                      <h2 className="text-lg font-semibold text-slate-800">Match Score</h2>
-                    </div>
-                  </div>
-                  <div className="p-6 text-center">
-                    <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br ${getScoreGradient(score)} text-white text-2xl font-bold mb-4 shadow-lg`}>
-                      {score}%
-                    </div>
-                    <p className={`text-lg font-semibold ${getScoreColor(score)} mb-2`}>
-                      {score >= 80 ? "Excellent Match! 🎉" : score >= 60 ? "Good Match 📈" : "Needs Improvement 💡"}
-                    </p>
-                    <p className="text-slate-600 text-sm">
-                      Your resume compatibility with the job requirements
-                    </p>
-                  </div>
-                </div>
+         <div className="space-y-6">
+  {/* 🔹 Summary */}
+  <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="px-6 py-4 bg-gradient-to-r from-indigo-50 to-indigo-100 border-b border-slate-200 flex justify-between items-center">
+      <h2 className="text-lg font-semibold text-slate-800">Summary</h2>
+      <button
+        onClick={() => handleSectionFetch("summary")}
+        className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
+      >
+        {loadingSection === "summary" ? "Loading..." : "Analyze"}
+      </button>
+    </div>
+    <div className="p-6 text-sm text-slate-600">
+      {summary ? (
+        <p>{summary}</p>
+      ) : (
+        <p className="text-slate-400">Click "Analyze" to generate summary.</p>
+      )}
+    </div>
+  </div>
 
-                {/* Skills Gap Analysis */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="px-6 py-4 bg-gradient-to-r from-amber-50 to-orange-50 border-b border-slate-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-amber-100 rounded-lg">
-                        <TrendingUp className="w-5 h-5 text-amber-600" />
-                      </div>
-                      <h2 className="text-lg font-semibold text-slate-800">Skills Gap Analysis</h2>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-sm font-medium text-slate-700 mb-3">Missing Skills</h3>
-                        <div className="flex flex-wrap gap-2">
-                          <span className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-full text-sm">React.js</span>
-                          <span className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-full text-sm">AWS</span>
-                          <span className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-full text-sm">Docker</span>
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium text-slate-700 mb-3">Matching Skills</h3>
-                        <div className="flex flex-wrap gap-2">
-                          <span className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-sm">JavaScript</span>
-                          <span className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-sm">Python</span>
-                          <span className="px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-sm">SQL</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+  {/* 🔹 Resume Quality */}
+  <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="px-6 py-4 bg-gradient-to-r from-emerald-50 to-emerald-100 border-b border-slate-200 flex justify-between items-center">
+      <h2 className="text-lg font-semibold text-slate-800">Resume Quality</h2>
+      <button
+        onClick={() => handleSectionFetch("resumequality")}
+        className="px-3 py-1 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700"
+      >
+        {loadingSection === "resumequality" ? "Loading..." : "Analyze"}
+      </button>
+    </div>
+    <div className="p-6 text-sm text-slate-600">
+      {resumequality ? (
+        <p>{resumequality}</p>
+      ) : (
+        <p className="text-slate-400">Click "Analyze" to check resume quality.</p>
+      )}
+    </div>
+  </div>
 
-                {/* Improvement Suggestions */}
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-slate-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Users className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <h2 className="text-lg font-semibold text-slate-800">Improvement Suggestions</h2>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-blue-600 text-sm font-medium">1</span>
-                        </div>
-                        <p className="text-slate-700 text-sm">Add more specific technical skills mentioned in the job description</p>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-blue-600 text-sm font-medium">2</span>
-                        </div>
-                        <p className="text-slate-700 text-sm">Include quantifiable achievements and metrics</p>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-blue-600 text-sm font-medium">3</span>
-                        </div>
-                        <p className="text-slate-700 text-sm">Emphasize relevant project experience</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
+  {/* 🔹 Skills Gap */}
+  <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="px-6 py-4 bg-gradient-to-r from-red-50 to-red-100 border-b border-slate-200 flex justify-between items-center">
+      <h2 className="text-lg font-semibold text-slate-800">Skills Gap</h2>
+      <button
+        onClick={() => handleSectionFetch("skillsGap")}
+        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+      >
+        {loadingSection === "skillsGap" ? "Loading..." : "Analyze"}
+      </button>
+    </div>
+    <div className="p-6 text-sm text-slate-600">
+      {skillsGap ? (
+        <ul className="list-disc list-inside space-y-1">
+          {skillsGap.map((skill, idx) => (
+            <li key={idx}>{skill}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-slate-400">Click "Analyze" to identify skill gaps.</p>
+      )}
+    </div>
+  </div>
 
-            {/* Job Description at bottom right */}
-            {hasExistingData && jobDescription && (
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-slate-200">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-purple-100 rounded-lg">
-                        <Target className="w-5 h-5 text-purple-600" />
-                      </div>
-                      <h2 className="text-lg font-semibold text-slate-800">Job Description</h2>
-                    </div>
-                    {!showJDInput && (
-                      <button
-                        onClick={() => {
-                          setLocalJobDescription(jobDescription);
-                          setShowJDInput(true);
-                        }}
-                        className="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors"
-                      >
-                        Edit
-                      </button>
-                    )}
-                  </div>
-                </div>
+  {/* 🔹 Improvement Suggestions */}
+  <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="px-6 py-4 bg-gradient-to-r from-yellow-50 to-yellow-100 border-b border-slate-200 flex justify-between items-center">
+      <h2 className="text-lg font-semibold text-slate-800">Improvement Suggestions</h2>
+      <button
+        onClick={() => handleSectionFetch("suggestions")}
+        className="px-3 py-1 bg-yellow-600 text-white rounded-lg text-sm hover:bg-yellow-700"
+      >
+        {loadingSection === "suggestions" ? "Loading..." : "Analyze"}
+      </button>
+    </div>
+    <div className="p-6 text-sm text-slate-600">
+      {suggestions ? (
+        <ul className="space-y-2">
+          {suggestions.map((s, idx) => (
+            <li key={idx} className="flex items-start space-x-2">
+              <span className="w-5 h-5 flex items-center justify-center bg-yellow-100 text-yellow-600 rounded-full text-xs">
+                {idx + 1}
+              </span>
+              <p>{s}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-slate-400">Click "Analyze" to get improvement suggestions.</p>
+      )}
+    </div>
+  </div>
 
-                <div className="p-6">
-                  {showJDInput ? (
-                    <div className="space-y-4">
-                      <textarea
-                        value={localJobDescription}
-                        onChange={(e) => setLocalJobDescription(e.target.value)}
-                        placeholder="Paste the job description here to analyze compatibility..."
-                        className="w-full h-32 bg-slate-50 border border-slate-200 rounded-lg p-4 text-slate-700 placeholder-slate-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 resize-none transition-all"
-                      />
-                      <div className="flex gap-3">
-                        <button
-                          onClick={handleJDSubmit}
-                          disabled={!localJobDescription.trim()}
-                          className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all text-sm"
-                        >
-                          Save Description
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowJDInput(false);
-                            setLocalJobDescription("");
-                          }}
-                          className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-medium transition-colors text-sm"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="max-h-48 overflow-y-auto">
-                      <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
-                        {jobDescription}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+  {/* 🔹 Strength Suggestions */}
+  <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div className="px-6 py-4 bg-gradient-to-r from-teal-50 to-teal-100 border-b border-slate-200 flex justify-between items-center">
+      <h2 className="text-lg font-semibold text-slate-800">Strength Suggestions</h2>
+      <button
+        onClick={() => handleSectionFetch("strenthsuggestion")}
+        className="px-3 py-1 bg-teal-600 text-white rounded-lg text-sm hover:bg-teal-700"
+      >
+        {loadingSection === "strenthsuggestion" ? "Loading..." : "Analyze"}
+      </button>
+    </div>
+    <div className="p-6 text-sm text-slate-600">
+      {strenthsuggestion ? (
+        <ul className="space-y-2">
+          {strenthsuggestion.map((s, idx) => (
+            <li key={idx} className="flex items-start space-x-2">
+              <span className="w-5 h-5 flex items-center justify-center bg-teal-100 text-teal-600 rounded-full text-xs">
+                {idx + 1}
+              </span>
+              <p>{s}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-slate-400">Click "Analyze" to highlight your strengths.</p>
+      )}
+    </div>
+  </div>
+</div>
 
-            {!score && (resumeFile || jobDescription) && (
-              <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-8 text-center">
-                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <TrendingUp className="w-8 h-8 text-slate-400" />
-                  </div>
-                  <h3 className="text-lg font-medium text-slate-800 mb-2">Ready for Analysis</h3>
-                  <p className="text-slate-600 text-sm">
-                    Upload both your resume and job description to see detailed analysis and improvement suggestions.
-                  </p>
-                </div>
-              </div>
-            )}
+          {/* Third Panel - Score & Extras */}
+<div className="w-[180px] bg-white border-l border-slate-200 flex flex-col items-center p-2 space-y-4 shadow-sm">
+  
+  {/* Score Circle */}
+  <div className="flex flex-col items-center">
+    <div className="w-20 h-20 rounded-full border-4 border-green-500 flex items-center justify-center">
+      <span className="text-lg font-semibold text-green-600">85%</span>
+    </div>
+    <p className="text-xs text-slate-500 mt-1">Match Score</p>
+  </div>
 
-            {!score && !resumeFile && !jobDescription && (
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-dashed border-blue-200 p-8 text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Award className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-medium text-slate-800 mb-2">Welcome to Resume Analyzer</h3>
-                <p className="text-slate-600 text-sm">
-                  Upload your resume and job description to get started with AI-powered analysis and improvement suggestions.
-                </p>
-              </div>
-            )}
-          </div>
+  {/* Previous Scores Button */}
+  <button className="w-full bg-slate-100 text-slate-700 text-xs py-1 rounded-lg hover:bg-slate-200">
+    Previous Scores
+  </button>
+
+  {/* Tips & Tricks */}
+  <button className="w-full bg-yellow-100 text-yellow-700 text-xs py-1 rounded-lg hover:bg-yellow-200">
+    Tips & Tricks
+  </button>
+
+  {/* Resources */}
+  <button className="w-full bg-blue-100 text-blue-700 text-xs py-1 rounded-lg hover:bg-blue-200">
+    Resources
+  </button>
+</div>
+
+           
+
         </div>
       </div>
+        {/* // third panel */}
+        
+        
     </div>
   );
 }

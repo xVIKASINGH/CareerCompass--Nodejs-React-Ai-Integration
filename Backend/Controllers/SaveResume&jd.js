@@ -7,6 +7,7 @@ const pdf = require("pdf-parse");
 const {pool} = require("../config/dbconnect");
 
 const {parseResume} =require("../config/generatescore");
+const verifytoken = require("../Middlewares/VerifyToken");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,9 +17,12 @@ cloudinary.config({
 
 const upload = multer({ dest: "uploads/" });
 
-router.post("/upload", upload.single("resume"), async (req, res) => {
+router.post("/upload",verifytoken, upload.single("resume"), async (req, res) => {
   console.log("Upload route hit!");
   console.log("User ID:", req.userId);
+  if(!req.userId){
+    return res.status(401).json({ error: "Not authenticated" });
+  }
   // Debug logs - corrected
   console.log("File object:", req.file);
   console.log("Job Description:", req.body.jobDescription);
