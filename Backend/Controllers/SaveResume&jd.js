@@ -7,6 +7,7 @@ const pdf = require("pdf-parse");
 const {pool} = require("../config/dbconnect");
 
 const {parseResume} =require("../config/generatescore");
+const {getStrength,getSummary,getSkillGap,Suggestions} =require("../config/generatescore");
 const verifytoken = require("../Middlewares/VerifyToken");
 
 cloudinary.config({
@@ -55,34 +56,36 @@ router.post("/upload",verifytoken, upload.single("resume"), async (req, res) => 
     console.log("Extracted text length:", resumeText.length);
 
     // 2. Upload file to cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
+ 
+
+    // 4. Call parser to get score & feedback
+    const score = await parseResume(resumeText, jobDescription);
+    const summary=await getSummary(resumeText,jobDescription);
+    const suggestions=await Suggestions(resumeText,jobDescription);
+    const skill_gap=await getSkillGap(resumeText,jobDescription);
+    const strength=await getStrength(resumeText,jobDescription);                                                      
+   
+     const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "auto",
       folder: "resumes" // Optional: organize uploads in a folder
     });
     console.log("Cloudinary upload result:", result.secure_url);
 
-    // 3. Cleanup local file
+    // 3. Cleanup local file                     
     fs.unlinkSync(req.file.path);
-
-    // 4. Call parser to get score & feedback
-    const response = await parseResume(resumeText, jobDescription);
-    console.log("Parser response:", response);
 
     // 5. Save to database
     const dbResult = await pool.query(
-      `INSERT INTO feedback (user_id, resume_url, score, comment, job_description)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [req.userId || 1, result.secure_url, response.score, response.comment, jobDescription]
+      `INSERT INTO feedback (user_id, resume_url, score, job_description,summary,suggestions,skill_gap,strength)
+       VALUES ($1, $2, $3, $4, $5 , $6 , $7 , $8) RETURNING *`,
+      [req.userId || 1, result.secure_url, score,  jobDescription,summary,suggestions,skill_gap,strength]
     );
 
     console.log("Database insert result:", dbResult.rows[0]);
 
     res.json({
       success: true,
-      url: result.secure_url,
-      score: response.score,
-      comment: response.comment,
-      feedback_id: dbResult.rows[0].id
+      message:"Success"
     });
 
   } catch (err) {

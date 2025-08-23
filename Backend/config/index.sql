@@ -13,5 +13,12 @@ CREATE TABLE PUBLIC.FEEDBACK(
     score INTEGER NOT NULL MIN CHECK (score >= 1 AND score <= 100),
     comment TEXT,
     job_description TEXT,
+    summary TEXT,
+    skill_gap TEXT,
+    suggestions TEXT,
+    strength TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+  // summary    // skills gap     // suggestions    // strength

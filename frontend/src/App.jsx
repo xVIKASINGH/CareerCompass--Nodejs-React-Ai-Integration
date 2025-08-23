@@ -6,6 +6,7 @@ import Landingpage from "./Pages/LandingPage.jsx/Landingpage";
 import Page from "./Pages/Signup/Page.jsx";
 import LoginPage from "./Pages/Login/LoginPage";
 import Dashboard from "./Pages/Dashboard/dashboard";
+import AddResume from "./Pages/Resume/AddResume";
 const App=()=>{
   return (
    <Router>
@@ -14,7 +15,7 @@ const App=()=>{
       <Route path="/login" element={<LoginPage/>}/>
       <Route path="/signup" element={<Page />} />
       <Route path="/dashboard" element={<Dashboard />} />
-
+      <Route path="/addresume" element={<AddResume />} />
       <Route path="*" element={<h1>Page not Found</h1>}/>
    </Routes>
    </Router>
