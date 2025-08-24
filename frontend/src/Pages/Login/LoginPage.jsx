@@ -33,7 +33,7 @@ function LoginPage() {
         console.log("Login successful:", response.data);
         setusername("");
         setpassword("");
-        navigate("/dashboard");
+        navigate("/addresume");
       } else {
         toast.error("Login failed: " + response.data.message);
         console.error("Login failed:", response.data);

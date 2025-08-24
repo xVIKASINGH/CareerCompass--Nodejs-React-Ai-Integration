@@ -66,7 +66,7 @@ const handleUploadAndAnalyze = async () => {
     });
 
     if (uploadResponse.ok) {
-      navigate("/dashboard");
+      navigate("/dashboard")
       setIsUploading(false);
     } else {
       toast.error("Upload failed. Please try again.");

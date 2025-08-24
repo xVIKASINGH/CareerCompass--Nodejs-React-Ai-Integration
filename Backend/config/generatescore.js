@@ -12,23 +12,17 @@ ${resumeText}
 and job description ${jdtext}
 As per JD and resume skills give it a score from 0-100.
 
-Output ONLY valid JSON:
-{ "score": <number from 0-100> }
+
 
 Rules:
 - Only a score from 0-100 is acceptable.
-- If the JD is not valid or the resume is not relevant, return { "score": 0 }
+- If the JD is not valid or the resume is not relevant, return 0
   `;
 
   const result = await model.generateContent(prompt);
   const text = result.response.text();
 
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("Parse error (parseResume):", e, text);
-    return { score: 0 };
-  }
+  return text
 }
 
 // 2. Get Summary
@@ -39,8 +33,7 @@ async function getSummary(resumeText, jdtext) {
 Analyze the resume below against the job description. 
 Give a 3-line overall summary in an informal but honest HR tone, highlighting alignment, strengths, and gaps. 
 Only provide your opinion, nothing else.
-If the resume and JD are completely different, return:
-{ "summary": "JD and resume didn't match." }
+
 
 Output ONLY valid JSON:
 { "summary": "<3 line informal HR style summary>" }
@@ -52,12 +45,7 @@ Job Description: ${jdtext}
   const result = await model.generateContent(prompt);
   const text = result.response.text();
 
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("Parse error (getSummary):", e, text);
-    return { summary: "JD and resume didn't match." };
-  }
+  return text;
 }
 
 // 3. Skill Gap
@@ -79,13 +67,7 @@ Job Description: ${jdtext}
 
   const result = await model.generateContent(prompt);
   const text = result.response.text();
-
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("Parse error (getSkillGap):", e, text);
-    return { skill_gap: [] };
-  }
+   return text;
 }
 
 // 4. Suggestions
@@ -133,22 +115,9 @@ Job Description: ${jdtext}
   `;
 
   const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  return result.response.text();
 
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("Parse error (Suggestions):", e, text);
-    return {
-      "Action Verbs": [],
-      "Missing Skills": [],
-      "Grammar Fixes": [],
-      "ATS Optimization": [],
-      "Market Trends": [],
-      "Conciseness": [],
-      "Tone & Clarity": []
-    };
-  }
+  
 }
 
 // 5. Strengths
@@ -168,14 +137,9 @@ Job Description: ${jdtext}
   `;
 
   const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  return result.response.text();
 
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("Parse error (getStrength):", e, text);
-    return { strength: [] };
-  }
+ 
 }
 
 module.exports = { parseResume, getSkillGap, getSummary, getStrength, Suggestions };

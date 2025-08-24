@@ -1,97 +1,116 @@
 "use client"
 
-import { useState } from "react"
-import { Menu, X, Zap } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { User, Menu, X } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 export default function Navbar() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(true)
+   const navigate=useNavigate();
+  useEffect(() => {
+    checkLoginStatus()
+  }, [])
+
+  const checkLoginStatus = async () => {
+    try {
+      const response = await fetch("/api/auth/status")
+      if (response.ok) {
+        setIsLoggedIn(true)
+      } else {
+        setIsLoggedIn(false)
+      }
+    } catch (error) {
+      setIsLoggedIn(false)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <nav className="bg-gray-900 shadow-md border-b border-gray-800">
+    <nav className="bg-white/95 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-              <Zap className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">RA</span>
             </div>
-            <span className="text-2xl font-bold text-white tracking-wide">CareerCompass</span>
+            <span className="text-xl font-semibold text-slate-800">ResumeAnalyzer</span>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a
-              href="#features"
-              className="text-gray-300 hover:text-blue-400 transition-colors duration-200 font-medium"
-            >
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#features" className="text-slate-600 hover:text-slate-800 transition-colors">
               Features
             </a>
-            <a
-              href="#pricing"
-              className="text-gray-300 hover:text-blue-400 transition-colors duration-200 font-medium"
-            >
+            <a href="#pricing" className="text-slate-600 hover:text-slate-800 transition-colors">
               Pricing
             </a>
-            <a
-              href="#about"
-              className="text-gray-300 hover:text-blue-400 transition-colors duration-200 font-medium"
-            >
+            <a href="#about" className="text-slate-600 hover:text-slate-800 transition-colors">
               About
             </a>
-            <a
-              href="/login"
-              className="text-gray-300 hover:text-blue-400 transition-colors duration-200 font-medium"
-            >
-              Sign in
-            </a>
-            <button  onClick={() => navigate("/signup")}className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-5 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md font-semibold">
-              Get Started
-            </button>
+
+            {isLoading ? (
+              <div className="w-6 h-6 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+            ) : isLoggedIn ? (
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white">
+                <User className="w-4 h-4 mr-2" />
+                Go to Dashboard
+              </Button>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" className="text-slate-600 hover:text-slate-800">
+                  Sign In
+                </Button>
+                <Button className="bg-blue-500 hover:bg-blue-600 text-white">Get Started</Button>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-300 hover:text-white transition-colors duration-200"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden p-2 text-slate-600 hover:text-slate-800"
+          >
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-800 bg-gray-900">
-            <div className="flex flex-col space-y-4">
-              <a
-                href="#features"
-                className="text-gray-300 hover:text-blue-400 transition-colors duration-200 font-medium"
-              >
+          <div className="md:hidden py-4 border-t border-slate-200">
+            <div className="flex flex-col gap-4">
+              <a href="#features" className="text-slate-600 hover:text-slate-800 transition-colors">
                 Features
               </a>
-              <a
-                href="#pricing"
-                className="text-gray-300 hover:text-blue-400 transition-colors duration-200 font-medium"
-              >
+              <a href="#pricing" className="text-slate-600 hover:text-slate-800 transition-colors">
                 Pricing
               </a>
-              <a
-                href="#about"
-                className="text-gray-300 hover:text-blue-400 transition-colors duration-200 font-medium"
-              >
+              <a href="#about" className="text-slate-600 hover:text-slate-800 transition-colors">
                 About
               </a>
-              <a
-                href="#contact"
-                className="text-gray-300 hover:text-blue-400 transition-colors duration-200 font-medium"
-              >
-                Contact
-              </a>
-              <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-5 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md font-semibold w-fit">
-                Get Started
-              </button>
+
+              {isLoading ? (
+                <div className="w-6 h-6 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
+              ) : isLoggedIn ? (
+               <Button 
+  className="bg-blue-500 hover:bg-blue-600 text-white w-fit"
+  onClick={() => navigate("/dashboard")}
+>
+  <User className="w-4 h-4 mr-2" />
+  Go to Dashboard
+</Button>
+
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <Button variant="ghost" className="text-slate-600 hover:text-slate-800 w-fit">
+                    Sign In
+                  </Button>
+                  <Button className="bg-blue-500 hover:bg-blue-600 text-white w-fit">Get Started</Button>
+                </div>
+              )}
             </div>
           </div>
         )}

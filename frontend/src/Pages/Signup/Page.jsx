@@ -34,7 +34,7 @@ function SignupPage() {
         setusername("");
         setemail("");
         setpassword("");
-        navigate("/dashboard");
+        navigate("/addresume");
       } else {
         console.error("Signup failed:", response.data);
       }
