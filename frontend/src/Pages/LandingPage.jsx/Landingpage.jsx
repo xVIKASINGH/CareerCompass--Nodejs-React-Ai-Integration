@@ -151,10 +151,7 @@ export default function LandingPage() {
               Get instant feedback on your resume and discover how well it matches job requirements. Powered by advanced
               AI to help you land your dream job.
             </p>
-            <div className="flex items-center justify-center gap-2 text-sm text-slate-500">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span>Trusted by 50,000+ job seekers</span>
-            </div>
+         
           </div>
 
           {/* Main Analysis Tool */}

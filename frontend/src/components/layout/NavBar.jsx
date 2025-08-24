@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { User, Menu, X } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import axios from "axios"
 export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -15,12 +16,18 @@ export default function Navbar() {
 
   const checkLoginStatus = async () => {
     try {
-      const response = await fetch("/api/auth/status")
-      if (response.ok) {
-        setIsLoggedIn(true)
-      } else {
-        setIsLoggedIn(false)
-      }
+      const response=await fetch("http://localhost:8000/api/auth",{
+        method:"GET",
+        credentials:"include",
+        
+      })
+      if (!response.ok) {
+      setIsLoggedIn(false)
+      return
+    }
+
+      const data = await response.json()
+    setIsLoggedIn(data?.data?.authenticated === true)
     } catch (error) {
       setIsLoggedIn(false)
     } finally {
@@ -55,16 +62,20 @@ export default function Navbar() {
             {isLoading ? (
               <div className="w-6 h-6 border-2 border-blue-200 border-t-blue-500 rounded-full animate-spin" />
             ) : isLoggedIn ? (
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white">
-                <User className="w-4 h-4 mr-2" />
-                Go to Dashboard
-              </Button>
+              <Button 
+  className="bg-blue-500 hover:bg-blue-600 text-white"
+  onClick={() => navigate("/dashboard")}
+>
+  <User className="w-4 h-4 mr-2" />
+  Go to Dashboard
+</Button>
+
             ) : (
               <div className="flex items-center gap-3">
-                <Button variant="ghost" className="text-slate-600 hover:text-slate-800">
+                <Button variant="ghost" className="text-slate-600 hover:text-slate-800" onClick={()=>navigate("/login")}>
                   Sign In
                 </Button>
-                <Button className="bg-blue-500 hover:bg-blue-600 text-white">Get Started</Button>
+                <Button className="bg-blue-500 hover:bg-blue-600 text-white" onClick={()=>navigate("/signup")}>Get Started</Button>
               </div>
             )}
           </div>

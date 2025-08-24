@@ -64,3 +64,14 @@ exports.login = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+exports.isLoggedIn=async (req,res)=>{
+     console.log("api hittt for check");
+      return res.status(200).json({
+    success: true,
+    data: {
+      authenticated: true,
+      user: req.user, 
+    }
+  })
+}
