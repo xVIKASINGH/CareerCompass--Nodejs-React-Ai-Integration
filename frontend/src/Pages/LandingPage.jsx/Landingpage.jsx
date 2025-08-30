@@ -8,10 +8,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button"
 import NavBar from "@/components/layout/NavBar";
 import Footer from "@/components/layout/Footer";
-
+import { useNavigate } from "react-router-dom"
 function ScoreDialog({ isOpen, onClose, score, responseMessage }) {
   const [animatedScore, setAnimatedScore] = useState(0)
-
+   const navigate=useNavigate();
   useEffect(() => {
     if (isOpen && score != null) {
       let current = 0
@@ -71,7 +71,7 @@ function ScoreDialog({ isOpen, onClose, score, responseMessage }) {
 
           <p className="text-center text-slate-600 mb-6 px-4">{responseMessage}</p>
 
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2">
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2"onClick={()=>navigate("/signup")}>
             Sign up to improve your score
             <ArrowRight className="w-4 h-4" />
           </Button>
@@ -89,7 +89,7 @@ export default function LandingPage() {
   const [responseType, setResponseType] = useState("")
   const [showScoreDialog, setShowScoreDialog] = useState(false)
   const [score, setScore] = useState(0)
-
+ 
   const onDrop = useCallback((acceptedFiles) => {
     setResumeFile(acceptedFiles[0])
   }, [])
@@ -274,6 +274,7 @@ export default function LandingPage() {
         score={score}
         responseMessage={responseMessage}
       />
+  
     </>
   )
 }

@@ -1,6 +1,6 @@
-"use client";
+
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ function LoginPage() {
       toast.error("Username and Password cannot be empty");
       return;
     }
+   
     try {
       const response = await axios.post(
         "http://localhost:8000/api/login",
@@ -29,6 +30,7 @@ function LoginPage() {
           withCredentials: true,
         }
       );
+
       if (response.data.success) {
         console.log("Login successful:", response.data);
         setusername("");
@@ -39,8 +41,8 @@ function LoginPage() {
         console.error("Login failed:", response.data);
       }
     } catch (error) {
-      toast.error("Login failed: " + error.message);
-      console.error("Error during login:", error);
+      const msg = error.response?.data?.message || "Something went wrong";
+    toast.error(msg);
     }
   };
 

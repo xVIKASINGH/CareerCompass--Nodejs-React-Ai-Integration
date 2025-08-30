@@ -22,6 +22,16 @@ function SignupPage() {
       toast.error("All fields are required");
       return;
     }
+   
+       if(username.length<4){
+      toast.error("username must be 4 character long");
+      return;
+    }
+    if(password.length<5){
+      toast.error("Password must be 6 character long");
+      return;
+    }
+ 
     try {
       const response = await axios.post(
         "http://localhost:8000/api/register",

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef } from "react";
 import {
   Upload,
   FileText,
@@ -19,265 +19,305 @@ import {
   Zap,
   BookOpen,
   ExternalLink,
-} from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
+  Plus,
+  BarChart3,
+  LogOut,
+} from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function Dashboard() {
   // Backend data state
-  const [resumeFile, setResumeFile] = useState(null)
-  const [resumeUrl, setResumeUrl] = useState(null)
-  const [jobDescription, setJobDescription] = useState("")
-  const [score, setScore] = useState(null)
-  const [comment, setComment] = useState(null)
-  const [summary, setSummary] = useState(null)
-  const [skillGap, setSkillGap] = useState(null)
-  const [suggestions, setSuggestions] = useState(null)
-  const [strength, setStrength] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [uploadStatus, setUploadStatus] = useState("idle")
-  const [backendError, setBackendError] = useState(null)
+  const [resumeFile, setResumeFile] = useState(null);
+  const [resumeUrl, setResumeUrl] = useState(null);
+  const [jobDescription, setJobDescription] = useState("");
+  const [score, setScore] = useState(null);
+  const [comment, setComment] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [skillGap, setSkillGap] = useState(null);
+  const [suggestions, setSuggestions] = useState(null);
+  const [strength, setStrength] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [uploadStatus, setUploadStatus] = useState("idle");
+  const [backendError, setBackendError] = useState(null);
+  const navigate = useNavigate();
 
   // Local state for new uploads
-  const [localResumeFile, setLocalResumeFile] = useState(null)
-  const [localJobDescription, setLocalJobDescription] = useState("")
+  const [localResumeFile, setLocalResumeFile] = useState(null);
+  const [localJobDescription, setLocalJobDescription] = useState("");
 
   // Drag & drop state
-  const [dragOver, setDragOver] = useState(false)
-  const fileInputRef = useRef(null)
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
 
   const parseMarkdownJSON = (jsonString) => {
-    if (!jsonString) return null
+    if (!jsonString) return null;
 
     try {
       // Remove markdown code block wrapper if present
-      let cleanJson = jsonString.trim()
+      let cleanJson = jsonString.trim();
       if (cleanJson.startsWith("```json\n")) {
-        cleanJson = cleanJson.replace(/^```json\n/, "").replace(/\n```$/, "")
+        cleanJson = cleanJson.replace(/^```json\n/, "").replace(/\n```$/, "");
       } else if (cleanJson.startsWith("```\n")) {
-        cleanJson = cleanJson.replace(/^```\n/, "").replace(/\n```$/, "")
+        cleanJson = cleanJson.replace(/^```\n/, "").replace(/\n```$/, "");
       }
 
-      return JSON.parse(cleanJson)
+      return JSON.parse(cleanJson);
     } catch (e) {
-      console.error("Failed to parse JSON:", e, "Original string:", jsonString)
-      return null
+      console.error("Failed to parse JSON:", e, "Original string:", jsonString);
+      return null;
     }
-  }
+  };
 
   useEffect(() => {
     const fetchBackendData = async () => {
       try {
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
         const res = await fetch("http://localhost:8000/api/feedback", {
           method: "GET",
           credentials: "include",
           signal: controller.signal,
-        })
+        });
 
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
 
         if (!res.ok) {
-          throw new Error(`Server responded with ${res.status}: ${res.statusText}`)
+          throw new Error(`Server responded with ${res.status}: ${res.statusText}`);
         }
 
-        const data = await res.json()
-        console.log("Fetched data:", data)
-        setBackendError(null) // Clear any previous errors
+        const data = await res.json();
+        console.log("Fetched data:", data);
+        setBackendError(null); // Clear any previous errors
 
         if (data.feedbacks && data.feedbacks.length > 0) {
-          const feedback = data.feedbacks[0]
+          const feedback = data.feedbacks[0];
 
-          setResumeUrl(feedback.resume_url || null)
-          setJobDescription(feedback.job_description || "")
-          setScore(feedback.score ?? null) // Score remains as number
-          setComment(feedback.comment || null)
+          setResumeUrl(feedback.resume_url || null);
+          setJobDescription(feedback.job_description || "");
+          setScore(feedback.score ?? null); // Score remains as number
+          setComment(feedback.comment || null);
 
-          const parsedSummary = parseMarkdownJSON(feedback.summary)
-          setSummary(parsedSummary?.summary || feedback.summary || null)
+          const parsedSummary = parseMarkdownJSON(feedback.summary);
+          setSummary(parsedSummary?.summary || feedback.summary || null);
 
-          const parsedSkillGap = parseMarkdownJSON(feedback.skill_gap)
+          const parsedSkillGap = parseMarkdownJSON(feedback.skill_gap);
           setSkillGap(
             parsedSkillGap?.skill_gap ||
-              (feedback.skill_gap ? feedback.skill_gap.split("\n").filter((s) => s.trim()) : null),
-          )
+              (feedback.skill_gap ? feedback.skill_gap.split("\n").filter((s) => s.trim()) : null)
+          );
 
-          const parsedSuggestions = parseMarkdownJSON(feedback.suggestions)
+          const parsedSuggestions = parseMarkdownJSON(feedback.suggestions);
           setSuggestions(
             parsedSuggestions ||
-              (feedback.suggestions ? feedback.suggestions.split("\n").filter((s) => s.trim()) : null),
-          )
+              (feedback.suggestions ? feedback.suggestions.split("\n").filter((s) => s.trim()) : null)
+          );
 
-          const parsedStrength = parseMarkdownJSON(feedback.strength)
+          const parsedStrength = parseMarkdownJSON(feedback.strength);
           setStrength(
             parsedStrength?.strength ||
-              (feedback.strength ? feedback.strength.split("\n").filter((s) => s.trim()) : null),
-          )
+              (feedback.strength ? feedback.strength.split("\n").filter((s) => s.trim()) : null)
+          );
         }
       } catch (err) {
-        console.error("Error fetching backend data:", err)
+        console.error("Error fetching backend data:", err);
         if (err.name === "AbortError") {
-          setBackendError("Connection timeout. Please check if your backend server is running.")
+          setBackendError("Connection timeout. Please check if your backend server is running.");
         } else if (err.message.includes("Failed to fetch")) {
-          setBackendError("Cannot connect to backend server. Please ensure it's running on http://localhost:8000")
+          setBackendError("Cannot connect to backend server. Please ensure it's running on http://localhost:8000");
         } else {
-          setBackendError(`Backend error: ${err.message}`)
+          setBackendError(`Backend error: ${err.message}`);
         }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchBackendData()
-  }, [])
+    fetchBackendData();
+  }, []);
+
+  const handleLogOut = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/logout", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (res.ok) {
+        navigate("/");
+      }
+    } catch (error) {
+      toast.error("Failed to Log out", error);
+    }
+  };
 
   const uploadData = async () => {
-    if (!localResumeFile && !localJobDescription) return
+    if (!localResumeFile && !localJobDescription) return;
 
     try {
-      setUploadStatus("uploading")
-      setBackendError(null) // Clear any previous errors
+      setUploadStatus("uploading");
+      setBackendError(null); // Clear any previous errors
 
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout for uploads
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for uploads
 
-      const formData = new FormData()
-      if (localResumeFile) formData.append("resume", localResumeFile)
-      if (localJobDescription) formData.append("jobDescription", localJobDescription)
+      const formData = new FormData();
+      if (localResumeFile) formData.append("resume", localResumeFile);
+      if (localJobDescription) formData.append("jobDescription", localJobDescription);
 
       const uploadResponse = await fetch("http://localhost:8000/api/upload", {
         method: "POST",
         credentials: "include",
         body: formData,
         signal: controller.signal,
-      })
+      });
 
-      clearTimeout(timeoutId)
+      clearTimeout(timeoutId);
 
-      if (!uploadResponse.ok) throw new Error(`Upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`)
+      if (!uploadResponse.ok) throw new Error(`Upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`);
 
       // Fetch updated data
       const res = await fetch("http://localhost:8000/api/feedback", {
         method: "GET",
         credentials: "include",
-      })
-      const data = await res.json()
+      });
+      const data = await res.json();
 
       if (data.feedbacks?.length > 0) {
-        const feedback = data.feedbacks[0]
-        setResumeUrl(feedback.resume_url || null)
-        setJobDescription(feedback.job_description || "")
-        setScore(feedback.score ?? null)
-        setComment(feedback.comment || null)
+        const feedback = data.feedbacks[0];
+        setResumeUrl(feedback.resume_url || null);
+        setJobDescription(feedback.job_description || "");
+        setScore(feedback.score ?? null);
+        setComment(feedback.comment || null);
 
-        const parsedSummary = parseMarkdownJSON(feedback.summary)
-        setSummary(parsedSummary?.summary || feedback.summary || null)
+        const parsedSummary = parseMarkdownJSON(feedback.summary);
+        setSummary(parsedSummary?.summary || feedback.summary || null);
 
-        const parsedSkillGap = parseMarkdownJSON(feedback.skill_gap)
+        const parsedSkillGap = parseMarkdownJSON(feedback.skill_gap);
         setSkillGap(
           parsedSkillGap?.skill_gap ||
-            (feedback.skill_gap ? feedback.skill_gap.split("\n").filter((s) => s.trim()) : null),
-        )
+            (feedback.skill_gap ? feedback.skill_gap.split("\n").filter((s) => s.trim()) : null)
+        );
 
-        const parsedSuggestions = parseMarkdownJSON(feedback.suggestions)
+        const parsedSuggestions = parseMarkdownJSON(feedback.suggestions);
         setSuggestions(
-          parsedSuggestions || (feedback.suggestions ? feedback.suggestions.split("\n").filter((s) => s.trim()) : null),
-        )
+          parsedSuggestions || (feedback.suggestions ? feedback.suggestions.split("\n").filter((s) => s.trim()) : null)
+        );
 
-        const parsedStrength = parseMarkdownJSON(feedback.strength)
+        const parsedStrength = parseMarkdownJSON(feedback.strength);
         setStrength(
           parsedStrength?.strength ||
-            (feedback.strength ? feedback.strength.split("\n").filter((s) => s.trim()) : null),
-        )
+            (feedback.strength ? feedback.strength.split("\n").filter((s) => s.trim()) : null)
+        );
       }
 
       // Clear local state
-      setLocalResumeFile(null)
-      setLocalJobDescription("")
-      setUploadStatus("success")
+      setLocalResumeFile(null);
+      setLocalJobDescription("");
+      setUploadStatus("success");
 
-      setTimeout(() => setUploadStatus("idle"), 3000)
+      setTimeout(() => setUploadStatus("idle"), 3000);
     } catch (err) {
-      console.error("Error uploading data:", err)
-      setUploadStatus("error")
+      console.error("Error uploading data:", err);
+      setUploadStatus("error");
       if (err.name === "AbortError") {
-        setBackendError("Upload timeout. Please try again.")
+        setBackendError("Upload timeout. Please try again.");
       } else {
-        setBackendError(`Upload failed: ${err.message}`)
+        setBackendError(`Upload failed: ${err.message}`);
       }
-      setTimeout(() => setUploadStatus("idle"), 3000)
+      setTimeout(() => setUploadStatus("idle"), 3000);
     }
-  }
+  };
 
   // Drag & drop handlers
   const handleDragOver = (e) => {
-    e.preventDefault()
-    setDragOver(true)
-  }
+    e.preventDefault();
+    setDragOver(true);
+  };
 
   const handleDragLeave = (e) => {
-    e.preventDefault()
-    setDragOver(false)
-  }
+    e.preventDefault();
+    setDragOver(false);
+  };
 
   const handleDrop = (e) => {
-    e.preventDefault()
-    setDragOver(false)
-    const files = e.dataTransfer.files
-    if (files.length > 0) handleFileUpload(files[0])
-  }
+    e.preventDefault();
+    setDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) handleFileUpload(files[0]);
+  };
 
   const handleFileUpload = (file) => {
     if (file && file.type === "application/pdf") {
-      setLocalResumeFile(file)
+      setLocalResumeFile(file);
     } else {
-      alert("Please upload a PDF file")
+      alert("Please upload a PDF file");
     }
-  }
+  };
 
   const getScoreColor = (score) => {
-    if (score >= 80) return "text-emerald-600"
-    if (score >= 60) return "text-amber-600"
-    return "text-red-600"
-  }
+    if (score >= 80) return "text-emerald-600";
+    if (score >= 60) return "text-amber-600";
+    return "text-red-600";
+  };
 
   const getScoreGradient = (score) => {
-    if (score >= 80) return "from-emerald-500 to-teal-600"
-    if (score >= 60) return "from-amber-500 to-orange-600"
-    return "from-red-500 to-rose-600"
-  }
+    if (score >= 80) return "from-emerald-500 to-teal-600";
+    if (score >= 60) return "from-amber-500 to-orange-600";
+    return "from-red-500 to-rose-600";
+  };
 
   const getScoreBorderColor = (score) => {
-    if (score >= 80) return "border-emerald-500"
-    if (score >= 60) return "border-amber-500"
-    return "border-red-500"
-  }
+    if (score >= 80) return "border-emerald-500";
+    if (score >= 60) return "border-amber-500";
+    return "border-red-500";
+  };
 
   // Check if we have existing data to show
-  const hasExistingData = resumeUrl || jobDescription || score !== null
+  const hasExistingData = resumeUrl || jobDescription || score !== null;
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center space-y-4 animate-fade-in-up">
+          {/* Loader Box */}
+          <div className="w-16 h-16 bg-white border border-blue-100 shadow-lg rounded-2xl flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
           </div>
-          <span className="text-slate-700 font-semibold text-lg">Loading Dashboard...</span>
+
+          {/* Text */}
+          <span className="text-blue-500 font-medium text-lg tracking-wide">Loading Dashboard...</span>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200 shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className=" mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            
+            {hasExistingData && (
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => (window.location.href = "/addresume")}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-xl font-medium shadow-sm hover:shadow-md transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Resume</span>
+                </button>
+                <button
+                  onClick={handleLogOut}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-400 to-red-400 hover:from-red-400 hover:to-red-700 text-white rounded-xl font-medium shadow-sm hover:shadow-md transition-all"
+                >
+                  <LogOut className="w-5 h-4" />
+                  <span>Log out</span>
+                </button>
+              </div>
+            )}
 
             {/* Status Messages */}
             <div className="flex items-center space-x-4">
@@ -336,7 +376,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className="mx-auto px-6 py-8">
+      <div className="mx-auto px-2 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_300px] gap-8 h-full">
           {/* Left Panel - Resume Upload/Viewer */}
           <div className="space-y-6">
@@ -345,7 +385,7 @@ export default function Dashboard() {
                 {/* Resume Viewer */}
                 {resumeUrl && (
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                    <div className="px-4 py-2 bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <div className="p-2 bg-slate-100 rounded-xl">
@@ -378,8 +418,8 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    <div className="p-6">
-                      <div className="w-full h-96 border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                    <div className="p-4">
+                      <div className="w-full h-150 border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
                         <iframe
                           src={`${resumeUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                           className="w-full h-full"
@@ -389,67 +429,6 @@ export default function Dashboard() {
                     </div>
                   </div>
                 )}
-
-                {/* Upload New Resume Section */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="px-6 py-4 bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-200">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-emerald-100 rounded-xl">
-                        <Upload className="w-5 h-5 text-emerald-600" />
-                      </div>
-                      <h2 className="text-lg font-semibold text-slate-800">Upload New Resume</h2>
-                    </div>
-                  </div>
-
-                  <div className="p-6">
-                    {localResumeFile ? (
-                      <div className="flex items-center space-x-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl">
-                        <CheckCircle className="w-5 h-5 text-emerald-600" />
-                        <div className="flex-1">
-                          <p className="font-medium text-emerald-800">{localResumeFile.name}</p>
-                          <p className="text-sm text-emerald-600">Ready for analysis</p>
-                        </div>
-                        <button
-                          onClick={() => setLocalResumeFile(null)}
-                          className="text-sm text-red-600 hover:text-red-700 transition-colors"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ) : (
-                      <div
-                        className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-200 ${
-                          dragOver
-                            ? "border-emerald-400 bg-emerald-50 transform scale-[1.02]"
-                            : "border-slate-300 hover:border-emerald-300 hover:bg-slate-50"
-                        }`}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <div className="space-y-3">
-                          <div className="mx-auto w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-                            <Upload className="w-6 h-6 text-emerald-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-slate-700">
-                              {dragOver ? "Drop new resume here" : "Upload new resume"}
-                            </p>
-                            <p className="text-xs text-slate-500 mt-1">PDF files only</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".pdf"
-                      className="hidden"
-                      onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
-                    />
-                  </div>
-                </div>
               </>
             ) : (
               <>
@@ -463,7 +442,7 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="p-6">
+                  <div className="p-2">
                     <div className="text-center space-y-4">
                       <div className="mx-auto w-16 h-16 bg-slate-100 rounded-xl flex items-center justify-center">
                         <FileText className="w-8 h-8 text-slate-700" />
@@ -622,7 +601,7 @@ export default function Dashboard() {
                     </div>
                   </div>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl bg-white border border-slate-200 shadow-xl">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                       <FileText className="w-5 h-5 text-slate-700" />
@@ -668,7 +647,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-2xl bg-white border border-slate-200 shadow-xl">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5 text-red-600" />
@@ -713,14 +692,15 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[80vh]">
+                  <DialogContent className="max-w-9xl max-h-[90vh] bg-white border border-slate-200 shadow-xl">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         <TrendingUp className="w-5 h-5 text-amber-600" />
                         Improvement Suggestions
                       </DialogTitle>
                     </DialogHeader>
-                    <div className="mt-4 space-y-6 overflow-y-auto">
+                    {/* The fix: add max-h- and overflow-y-auto to the content div */}
+                    <div className="mt-4 space-y-6 overflow-y-auto max-h-[70vh]">
                       {typeof suggestions === "object" ? (
                         Object.entries(suggestions).map(([category, items]) => (
                           <div key={category} className="space-y-3">
@@ -790,7 +770,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-2xl bg-white border border-slate-200 shadow-xl">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         <Star className="w-5 h-5 text-emerald-600" />
@@ -836,13 +816,17 @@ export default function Dashboard() {
             <div className="p-6 space-y-6">
               {/* Score Display */}
               {score !== null && (
-                <div className="text-center">
+                <div className="text-center" data-score-section>
                   <div
-                    className={`w-24 h-24 mx-auto rounded-full border-4 ${getScoreBorderColor(score)} flex items-center justify-center mb-4 relative`}
+                    className={`w-24 h-24 mx-auto rounded-full border-4 ${getScoreBorderColor(
+                      score
+                    )} flex items-center justify-center mb-4 relative`}
                   >
                     <span className={`text-2xl font-bold ${getScoreColor(score)}`}>{score}%</span>
                     <div
-                      className={`absolute inset-0 rounded-full bg-gradient-to-br ${getScoreGradient(score)} opacity-10`}
+                      className={`absolute inset-0 rounded-full bg-gradient-to-br ${getScoreGradient(
+                        score
+                      )} opacity-10`}
                     ></div>
                   </div>
                   <h3 className="font-semibold text-slate-800 mb-1">Match Score</h3>
@@ -943,11 +927,11 @@ export default function Dashboard() {
                 <TrendingUp className="w-6 h-6 text-amber-600" />
               </div>
               <h3 className="font-semibold text-slate-800 mb-1">Suggestions</h3>
-              <p className="text-sm text-slate-600">{suggestions ? suggestions.length : 0} Items</p>
+              <p className="text-sm text-slate-600">{suggestions ? Object.keys(suggestions).length : 0} Items</p>
             </div>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

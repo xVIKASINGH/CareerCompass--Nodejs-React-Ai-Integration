@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Upload, FileText, Briefcase, Sparkles, CheckCircle, AlertCircle, ArrowRight, Download } from 'lucide-react';
+import { Upload, FileText, Briefcase, Sparkles, CheckCircle, AlertCircle, ArrowRight, Download, History } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/Button';
+
 
 const InsertResumeApp = () => {
   const [currentPage, setCurrentPage] = useState('upload');
@@ -10,6 +12,15 @@ const InsertResumeApp = () => {
   const [dragOver, setDragOver] = useState({ resume: false });
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [loadingMessages, setLoadingMessages] = useState([
+  "Analyzing your resume...",
+  "Checking your resume carefully...",
+  "Extracting important keywords...",
+  "Matching with job description..."
+]);
+const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+const [showOverlay, setShowOverlay] = useState(false);
+
   const navigate=useNavigate();
   const handleDragOver = (e, type) => {
     e.preventDefault();
@@ -54,6 +65,16 @@ const handleUploadAndAnalyze = async () => {
     return;
   }
 
+  setShowOverlay(true);
+  setCurrentMessageIndex(0);
+
+  // Cycle messages every 2s
+  const messageInterval = setInterval(() => {
+    setCurrentMessageIndex((prev) =>
+      prev < loadingMessages.length - 1 ? prev + 1 : prev
+    );
+  }, 2000);
+
   try {
     const formData = new FormData();
     formData.append("resume", resumeFile);
@@ -65,15 +86,18 @@ const handleUploadAndAnalyze = async () => {
       body: formData,
     });
 
+    clearInterval(messageInterval);
+
     if (uploadResponse.ok) {
-      navigate("/dashboard")
-      setIsUploading(false);
+      navigate("/dashboard");
     } else {
       toast.error("Upload failed. Please try again.");
+      setShowOverlay(false);
     }
   } catch (error) {
-    console.error("Upload failed", error);
+    clearInterval(messageInterval);
     toast.error("Upload failed. Please try again.");
+    setShowOverlay(false);
   }
 };
 
@@ -268,7 +292,7 @@ const handleUploadAndAnalyze = async () => {
             >
               {isUploading ? (
                 <>
-                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent font-semibold"></div>
                   Uploading & Analyzing...
                 </>
               ) : (
@@ -279,7 +303,11 @@ const handleUploadAndAnalyze = async () => {
                 </>
               )}
             </button>
-            
+          <Button className='cursor-pointer rounded-full h-12 w-60 border-2 border-white border-t-transparent bg-slate-300 mt-4 text-gray-500 text-xl'onClick={()=>navigate('/dashboard')}>
+             <History size={34} />
+              Recent Analysis
+                   <ArrowRight size={24} />
+            </Button>
             {(!resumeFile || !jdText.trim()) && !isUploading && (
               <p className="text-gray-500 mt-4">
                 Please upload your resume and enter the job description to continue
@@ -291,8 +319,16 @@ const handleUploadAndAnalyze = async () => {
                 Processing your files... This may take a moment.
               </p>
             )}
+           
           </div>
         </div>
+     {showOverlay && (
+  <div className="fixed inset-0 bg-blue-600 flex items-center justify-center text-center z-50">
+    <div className="text-white text-2xl font-bold animate-fade-in-up">
+      {loadingMessages[currentMessageIndex]}
+    </div>
+  </div>
+)}
 
         {/* Features */}
         <div className="max-w-4xl mx-auto mt-16">
@@ -323,6 +359,7 @@ const handleUploadAndAnalyze = async () => {
         </div>
       </div>
     </div>
+    
   );
 };
 

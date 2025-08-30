@@ -9,9 +9,9 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">RA</span>
+                <span className="text-white font-bold text-sm">CC</span>
               </div>
-              <span className="text-xl font-semibold text-slate-800">ResumeAnalyzer</span>
+              <span className="text-xl font-semibold text-slate-800">CareerCompass</span>
             </div>
             <p className="text-slate-600 text-sm leading-relaxed">
               AI-powered resume analysis to help you land your dream job. Get instant feedback and improve your chances.

@@ -61,10 +61,18 @@ exports.login = async (req, res) => {
         return res.status(200).json({ success: true, data: user.rows[0] });
     } catch (error) {
         console.error("Error in login:", error);
-        return res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: 'Internal server error',message:"Server error 500" });
     }
 };
-
+exports .logout=async(req,res)=>{
+    console.log("login api hit");
+    res.clearCookie("token",{
+        httpOnly:true,
+        sameSite:"None",
+        secure:true,
+    })
+      return res.status(200).json({ success: true, message: "Logged out" });
+}
 exports.isLoggedIn=async (req,res)=>{
      console.log("api hittt for check");
       return res.status(200).json({
