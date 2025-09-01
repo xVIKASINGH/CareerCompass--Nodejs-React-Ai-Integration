@@ -19,14 +19,12 @@ cloudinary.config({
 const upload = multer({ dest: "uploads/" });
 
 router.post("/upload",verifytoken, upload.single("resume"), async (req, res) => {
-  console.log("Upload route hit!");
-  console.log("User ID:", req.userId);
+
+
   if(!req.userId){
     return res.status(401).json({ error: "Not authenticated" });
   }
-  // Debug logs - corrected
-  console.log("File object:", req.file);
-  console.log("Job Description:", req.body.jobDescription);
+
   
   try {
     const { jobDescription } = req.body;
@@ -42,18 +40,11 @@ router.post("/upload",verifytoken, upload.single("resume"), async (req, res) => 
     }
 
 
-    console.log("File details:", {
-      originalName: req.file.originalname,
-      fileName: req.file.filename,
-      path: req.file.path,
-      size: req.file.size,
-      mimetype: req.file.mimetype
-    });
-
+   
     // 1. Extract text from resume
     const pdfData = await pdf(fs.readFileSync(req.file.path));
     const resumeText = pdfData.text;
-    console.log("Extracted text length:", resumeText.length);
+
 
     // 2. Upload file to cloudinary
  
@@ -69,7 +60,7 @@ router.post("/upload",verifytoken, upload.single("resume"), async (req, res) => 
       resource_type: "auto",
       folder: "resumes" // Optional: organize uploads in a folder
     });
-    console.log("Cloudinary upload result:", result.secure_url);
+   
 
     // 3. Cleanup local file                     
     fs.unlinkSync(req.file.path);
@@ -81,7 +72,6 @@ router.post("/upload",verifytoken, upload.single("resume"), async (req, res) => 
       [req.userId || 1, result.secure_url, score,  jobDescription,summary,suggestions,skill_gap,strength]
     );
 
-    console.log("Database insert result:", dbResult.rows[0]);
 
     res.json({
       success: true,
@@ -89,7 +79,7 @@ router.post("/upload",verifytoken, upload.single("resume"), async (req, res) => 
     });
 
   } catch (err) {
-    console.error("Upload error:", err);
+   
     
     // Cleanup file if it exists and there was an error
     if (req.file && fs.existsSync(req.file.path)) {

@@ -40,17 +40,17 @@ function SignupPage() {
          withCredentials:true}
       );
       if (response.data.success) {
-        console.log("Signup successful:", response.data);
+    
         setusername("");
         setemail("");
         setpassword("");
         navigate("/addresume");
       } else {
-        console.error("Signup failed:", response.data);
+      
       }
     } catch (error) {
       toast.error("Signup error: " + error.message);
-      console.error("Error during signup:", error);
+
     }
   };
 

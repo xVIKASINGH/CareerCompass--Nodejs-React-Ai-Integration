@@ -66,7 +66,7 @@ export default function Dashboard() {
 
       return JSON.parse(cleanJson);
     } catch (e) {
-      console.error("Failed to parse JSON:", e, "Original string:", jsonString);
+     
       return null;
     }
   };
@@ -90,7 +90,7 @@ export default function Dashboard() {
         }
 
         const data = await res.json();
-        console.log("Fetched data:", data);
+
         setBackendError(null); // Clear any previous errors
 
         if (data.feedbacks && data.feedbacks.length > 0) {
@@ -123,7 +123,7 @@ export default function Dashboard() {
           );
         }
       } catch (err) {
-        console.error("Error fetching backend data:", err);
+   
         if (err.name === "AbortError") {
           setBackendError("Connection timeout. Please check if your backend server is running.");
         } else if (err.message.includes("Failed to fetch")) {
@@ -220,7 +220,7 @@ export default function Dashboard() {
 
       setTimeout(() => setUploadStatus("idle"), 3000);
     } catch (err) {
-      console.error("Error uploading data:", err);
+
       setUploadStatus("error");
       if (err.name === "AbortError") {
         setBackendError("Upload timeout. Please try again.");

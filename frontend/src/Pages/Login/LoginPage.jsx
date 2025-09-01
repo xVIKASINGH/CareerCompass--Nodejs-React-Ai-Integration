@@ -32,13 +32,13 @@ function LoginPage() {
       );
 
       if (response.data.success) {
-        console.log("Login successful:", response.data);
+   
         setusername("");
         setpassword("");
         navigate("/addresume");
       } else {
         toast.error("Login failed: " + response.data.message);
-        console.error("Login failed:", response.data);
+
       }
     } catch (error) {
       const msg = error.response?.data?.message || "Something went wrong";

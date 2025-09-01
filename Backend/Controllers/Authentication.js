@@ -2,7 +2,7 @@ const { pool } = require('../config/dbconnect');
 const {createSecretToken}=require("../config/SecretToken");
 const bcrypt=require("bcrypt")
 exports.registeruser = async (req, res) => {
-    console.log("Register endpoint hit");
+   
     try {
         const { username, email, password } = req.body;
         if (!username || !password || !email || username.length < 3 || password.length < 6) {
@@ -14,7 +14,7 @@ exports.registeruser = async (req, res) => {
             [username, email,hashedpassword]
         );
         const token=await createSecretToken(user.rows[0].id);
-        console.log("User registered successfully:", user.rows[0]);
+  
          res.cookie("token", token, {
             httpOnly: true,
             secure: false, // true if using HTTPS
@@ -23,13 +23,13 @@ exports.registeruser = async (req, res) => {
         });
         res.status(201).json({ success: true, data: user.rows[0] });
     } catch (error) {
-        console.error("Error in register endpoint:", error);
+       
         res.status(500).json({ error: 'Internal server error' });
     }
 };
 
 exports.login = async (req, res) => {
-    console.log("Login endpoint hit");
+   
     const { username, password } = req.body;
     if (!username || !password) {
         return res.status(400).json({ error: 'Username and password are required' });
@@ -60,12 +60,12 @@ exports.login = async (req, res) => {
 
         return res.status(200).json({ success: true, data: user.rows[0] });
     } catch (error) {
-        console.error("Error in login:", error);
+       
         return res.status(500).json({ error: 'Internal server error',message:"Server error 500" });
     }
 };
 exports .logout=async(req,res)=>{
-    console.log("login api hit");
+
     res.clearCookie("token",{
         httpOnly:true,
         sameSite:"None",
@@ -74,7 +74,7 @@ exports .logout=async(req,res)=>{
       return res.status(200).json({ success: true, message: "Logged out" });
 }
 exports.isLoggedIn=async (req,res)=>{
-     console.log("api hittt for check");
+   
       return res.status(200).json({
     success: true,
     data: {
