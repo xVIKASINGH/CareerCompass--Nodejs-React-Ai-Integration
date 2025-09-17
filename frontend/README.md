@@ -1,12 +1,53 @@
-# React + Vite
+# CareerCompass 🚀  
+An intelligent career assistant built with **MERN stack** + **Gemini AI integration**.  
+CareerCompass helps job seekers analyze their resumes against job descriptions and improve their chances by providing ATS scores and AI-powered suggestions.  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+## ✨ Features  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 📂 Resume & JD Upload  
+- Drag & drop resume (PDF/DOC) and paste/upload job description.  
+- Auto extraction of text for processing.  
+- **[Screenshot](./assets/ss-upload.png)**  
 
-## Expanding the ESLint configuration
+### 📊 ATS Score Analyzer  
+- Compares resume with job description.  
+- Generates an **ATS compatibility score** to highlight resume strength.  
+- **[Screenshot](./assets/ss-ats.png)**  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🤖 AI-Powered Suggestions (Gemini Integration)  
+- Point-by-point suggestions to **improve resume** based on JD.  
+- Actionable feedback (skills missing, keyword usage, formatting).  
+- **[Screenshot](./assets/ss-suggestions.png)**  
+
+### 📑 Section-Wise Feedback  
+- Feedback on **Work Experience, Skills, Projects, Education** separately.  
+- Improves clarity & impact of each section.  
+- **[Screenshot](./assets/ss-section-feedback.png)**  
+
+### 🌐 Modern MERN Stack App  
+- **Frontend:** React + Tailwind for sleek UI.  
+- **Backend:** Node.js + Express API.  
+- **Database:** MongoDB for storing user sessions & history.  
+- **AI Integration:** Google Gemini API.  
+- **[Screenshot](./assets/ss-dashboard.png)**  
+
+---
+
+## ⚙️ Tech Stack  
+
+- **Frontend:** React.js, TailwindCSS  
+- **Backend:** Node.js, Express.js  
+- **Database:** MongoDB (Mongoose ORM)  
+- **AI Integration:** Gemini API  
+- **Authentication:** JWT/Auth0 (if implemented)  
+
+---
+
+## 🚀 Getting Started  
+
+### 1️⃣ Clone repo  
+```bash
+git clone https://github.com/your-username/careercompass.git
+cd careercompass

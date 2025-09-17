@@ -2,17 +2,21 @@ const { pool } = require('../config/dbconnect');
 const {createSecretToken}=require("../config/SecretToken");
 const bcrypt=require("bcrypt")
 exports.registeruser = async (req, res) => {
-   
+     console.log("Register user called")
     try {
         const { username, email, password } = req.body;
+        console.log(req.body)
         if (!username || !password || !email || username.length < 3 || password.length < 6) {
             return res.status(400).json({ error: 'Invalid input',message:"INvalid input" });
         }
+        console.log("Input validated")
         const hashedpassword=await bcrypt.hash(password,10);
         const user = await pool.query(
             'INSERT INTO users(username, email, password) VALUES ($1, $2, $3) RETURNING *',
             [username, email,hashedpassword]
         );
+        console.log("User inserted")
+        console.log(user.rows[0])
         const token=await createSecretToken(user.rows[0].id);
   
          res.cookie("token", token, {
